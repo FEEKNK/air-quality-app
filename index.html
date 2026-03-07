@@ -59,7 +59,7 @@
                     <div>
                         <h1 class="font-extrabold text-lg sm:text-xl text-white tracking-tight">ระบบรายงานและพยากรณ์คุณภาพอากาศ <span class="text-indigo-400 font-normal hidden sm:inline">(UFP)</span></h1>
                         <p class="text-slate-400 text-sm flex items-center gap-1.5 mt-0.5 font-medium">
-                            <i class="fas fa-location-dot text-rose-400"></i> มหาวิทยาลัยวลัยลักษณ์
+                            <i class="fas fa-location-dot text-rose-400"></i> ภายนอกอาคารปฏิบัติการสารสนเทศ มหาวิทยาลัยวลัยลักษณ์
                         </p>
                     </div>
                 </div>
@@ -276,8 +276,18 @@
             const next3h = mockCycle[(currentStep + 3) % mockCycle.length];
             const next6h = mockCycle[(currentStep + 6) % mockCycle.length];
 
+            // สร้างสตริงแสดงวันที่และเวลา
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('th-TH', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            const timeStr = now.toLocaleTimeString('th-TH');
+            const fullDateTime = `${dateStr} ${timeStr}`;
+
             const data = {
-                time: new Date().toLocaleTimeString('th-TH'),
+                time: fullDateTime,
                 currentValue: currentValue,
                 env: { temp, humid, wind },
                 forecast: {
@@ -335,7 +345,7 @@
             const gaugeContainer = document.getElementById('gauge-container');
             const valEl = document.getElementById('predict-now-val');
 
-            const maxVal = 12000;
+            const maxVal = 10000;
             const percentage = Math.min((value / maxVal) * 100, 100);
             const circumference = 251.2;
             const offset = circumference - (percentage / 100) * circumference;
@@ -412,8 +422,8 @@
         }
 
         function updateUI(data) {
-            let timeStr = data.time.includes(' ') ? data.time.split(' ')[1] : data.time;
-            document.getElementById('current-time').innerHTML = `อัปเดต: ${timeStr} น.`;
+            // แสดงทั้งวันที่และเวลาที่ผ่านเข้ามา
+            document.getElementById('current-time').innerHTML = `อัปเดต: ${data.time} น.`;
 
             // ข้อมูลสิ่งแวดล้อม
             document.getElementById('env-temp').innerText = data.env.temp.toFixed(1);
