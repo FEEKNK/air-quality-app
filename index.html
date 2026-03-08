@@ -79,10 +79,8 @@
     <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
         <div class="max-w-7xl mx-auto space-y-8">
 
-            <!-- Top Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                <!-- 1. Current Air Quality Gauge -->
                 <div class="bg-white/80 backdrop-blur-md rounded-[2rem] p-6 card-shadow flex flex-col items-center justify-between relative border border-white">
                     <div class="w-full text-center mb-2">
                         <h2 class="text-slate-800 font-extrabold text-xl">ปริมาณฝุ่น UFP/PM0.1</h2>
@@ -106,7 +104,6 @@
                     </div>
                 </div>
 
-                <!-- 2. Health Recommendations -->
                 <div class="bg-white/80 backdrop-blur-md rounded-[2rem] p-8 card-shadow flex flex-col justify-start items-center text-center transition-custom border border-white" id="health-card">
                     <div class="w-full flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                         <h2 class="text-slate-800 font-bold text-lg flex items-center gap-2">
@@ -124,7 +121,6 @@
                     </p>
                 </div>
 
-                <!-- 3. Environment Context -->
                 <div class="bg-white/80 backdrop-blur-md rounded-[2rem] p-6 card-shadow flex flex-col border border-white h-full">
                     <h2 class="text-slate-800 font-bold text-lg mb-6 flex items-center gap-2">
                         <i class="fas fa-leaf text-emerald-500"></i> สภาพแวดล้อม
@@ -165,7 +161,6 @@
                 </div>
             </div>
 
-            <!-- Bottom Row: AI Future Predictions -->
             <div class="mt-8">
                 <div class="flex items-center justify-between mb-6 pl-2">
                     <div class="flex items-center gap-3">
@@ -228,7 +223,6 @@
                 </div>
             </div>
 
-            <!-- WHO Guideline -->
             <div class="mt-8 text-center flex flex-wrap justify-center gap-4 text-lg font-medium text-slate-500">
                 <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-emerald-500"></span> ปลอดภัย (&le; 1k)</span>
                 <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-blue-400"></span> ปกติ (1k-5k)</span>
@@ -244,16 +238,16 @@
         let previousPredict = 0;
 
         // --- เริ่มส่วนการจำลองข้อมูล (Mock Data Simulation) ---
-        // สร้างลูปค่าฝุ่น 20 ระดับที่ขยับขึ้นลงตาม Cycle ให้ครบ 4 สถานะ
+        // วงจรค่าฝุ่น แบ่งเป็น 4 ระดับให้มีช่วงให้ตัดต่อได้สะดวก
         const mockCycle = [
-            450, 800, 950,         // ปลอดภัย (สีเขียว)
-            1500, 2800, 4200,      // ปกติ (สีฟ้า)
-            5500, 7000, 8500, 9800,// เฝ้าระวัง (สีส้ม)
-            10500, 11800, 14000,   // อันตราย (สีแดง - ขึ้นสุด)
-            13000, 11500,          // อันตราย (สีแดง - เริ่มลง)
-            9000, 6500,            // เฝ้าระวัง (สีส้ม - ขาลง)
-            4500, 2000,            // ปกติ (สีฟ้า - ขาลง)
-            900                    // ปลอดภัย (สีเขียว - กลับมาเริ่มใหม่)
+            // สีเขียว (ปลอดภัย)
+            450, 600, 800, 950,
+            // สีฟ้า (ปกติ)
+            1500, 2800, 4200, 4800,
+            // สีส้ม (เริ่มมีผลกระทบ)
+            5500, 7000, 8500, 9800,
+            // สีแดง (อันตราย)
+            11000, 12500, 14000, 15000
         ];
 
         let currentStep = 0;
@@ -467,15 +461,15 @@
             previousPredict = currentVal;
         }
 
-        // เริ่มต้นการจำลอง
+        // เริ่มต้นการจำลองข้อมูลแบบอัตโนมัติ
         function startSimulation() {
-            // โหลดครั้งแรกทันที
+            // โหลดข้อมูลครั้งแรกทันที
             updateUI(getSimulatedData());
 
-            // ตั้งเวลาให้โหลดข้อมูลจำลองชุดถัดไปทุกๆ 3 วินาที (เพื่อให้เห็น Transition อนิเมชั่นชัดเจน)
+            // ตั้งเวลาอัปเดตข้อมูลอัตโนมัติทุกๆ 3 วินาที (3000ms)
             setInterval(() => {
                 updateUI(getSimulatedData());
-            }, 3000);
+            }, 3000); 
         }
 
         // เรียกใช้งาน
