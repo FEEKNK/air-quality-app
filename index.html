@@ -251,16 +251,15 @@
         ];
 
         let currentStep = 0;
-        const fixedValue = mockCycle[0];
 
         function getSimulatedData() {
-            // ใช้ค่าเดียวตลอดเพื่อไม่ขยับตามที่ร้องขอ
-            const currentValue = fixedValue;
+            // วนค่าจาก mockCycle ทั้ง 4 ระดับ สีเขียว-น้ำเงิน-ส้ม-แดง
+            const currentValue = mockCycle[currentStep];
+            const next1h = mockCycle[(currentStep + 1) % mockCycle.length];
+            const next3h = mockCycle[(currentStep + 2) % mockCycle.length];
+            const next6h = mockCycle[(currentStep + 3) % mockCycle.length];
 
-            // forecast แบบคงที่ (ไม่ขึ้นกับ currentStep)
-            const next1h = mockCycle[1];
-            const next3h = mockCycle[2];
-            const next6h = mockCycle[3];
+            currentStep = (currentStep + 1) % mockCycle.length;
 
             const now = new Date();
             const dateStr = now.toLocaleDateString('th-TH', { 
@@ -299,18 +298,23 @@
             valEl.className = "text-5xl font-extrabold number-font tracking-tighter text-white drop-shadow-md transition-custom";
             unitEl.className = "text-sm font-bold text-white/70 pb-1 transition-custom";
 
-            // กำหนดสีตามเกณฑ์
-            // ปลอดภัย (<= 1k) = เขียว
-            // ปกติ (1k-5k) = น้ำเงิน
-            // ถ้า >5k ก็แปลงเป็นปกติเพื่อเข้ากับคำขอระดับสองเกณฑ์
+            // กำหนดสีตามเกณฑ์ 4 ระดับ
             if (value <= 1000) {
                 widgetEl.className = baseWidgetClass + "bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 border-none";
                 badgeEl.innerHTML = `<i class="fas fa-check-circle"></i> ปลอดภัย`;
                 badgeEl.className = "glass-badge px-3 py-1 rounded-full text-sm font-bold text-emerald-50 shadow-sm transition-custom";
-            } else {
-                widgetEl.className = baseWidgetClass + "bg-gradient-to-br from-blue-400 via-blue-500 to-indigo-600 border-none";
+            } else if (value <= 5000) {
+                widgetEl.className = baseWidgetClass + "bg-gradient-to-br from-blue-400 via-indigo-500 to-violet-600 border-none";
                 badgeEl.innerHTML = `<i class="fas fa-info-circle"></i> ปกติ`;
                 badgeEl.className = "glass-badge px-3 py-1 rounded-full text-sm font-bold text-blue-50 shadow-sm transition-custom";
+            } else if (value <= 10000) {
+                widgetEl.className = baseWidgetClass + "bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 border-none";
+                badgeEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> เฝ้าระวัง`;
+                badgeEl.className = "glass-badge px-3 py-1 rounded-full text-sm font-bold text-amber-50 shadow-sm transition-custom";
+            } else {
+                widgetEl.className = baseWidgetClass + "bg-gradient-to-br from-red-500 via-rose-600 to-purple-700 border-none";
+                badgeEl.innerHTML = `<i class="fas fa-skull-crossbones"></i> อันตราย`;
+                badgeEl.className = "glass-badge px-3 py-1 rounded-full text-sm font-bold text-rose-50 shadow-sm transition-custom";
             }
         }
 
@@ -350,15 +354,14 @@
 
                 badgeEl.innerHTML = "<i class='fas fa-leaf mr-1'></i> ปลอดภัย";
                 badgeEl.className = "px-5 py-2.5 rounded-2xl text-sm font-bold bg-emerald-50 text-emerald-600 transition-custom w-full text-center border border-emerald-100";
-            }
-            else {
+            } else if (value <= 5000) {
                 iconEl.className = "fas fa-face-smile text-[3.5rem] text-blue-500 transition-custom";
                 iconContainer.className = "w-24 h-24 rounded-full flex items-center justify-center mb-6 transition-custom bg-blue-50 relative";
                 healthRing.className = "absolute inset-0 rounded-full border-4 border-blue-100 scale-125 transition-custom opacity-50";
 
                 titleEl.innerText = "ปกติ (Normal)";
                 titleEl.className = "text-2xl font-extrabold text-blue-600 mb-2 transition-custom";
-                descEl.innerText = "คุณภาพอากาศอยู่ในระดับยอมรับได้ แต่ควรเฝ้าระวังถ้าเป็นกลุ่มเสี่ยง";
+                descEl.innerText = "คุณภาพอากาศอยู่ในระดับยอมรับได้ แต่ควรระมัดระวังถ้าเป็นกลุ่มเสี่ยง";
 
                 gaugeFill.style.stroke = "#3b82f6";
                 gaugeContainer.style.filter = "drop-shadow(0px 0px 15px rgba(59, 130, 246, 0.3))";
@@ -366,6 +369,36 @@
 
                 badgeEl.innerHTML = "<i class='fas fa-info-circle mr-1'></i> ปกติ";
                 badgeEl.className = "px-5 py-2.5 rounded-2xl text-sm font-bold bg-blue-50 text-blue-600 transition-custom w-full text-center border border-blue-100";
+            } else if (value <= 10000) {
+                iconEl.className = "fas fa-exclamation text-[3.5rem] text-orange-500 transition-custom";
+                iconContainer.className = "w-24 h-24 rounded-full flex items-center justify-center mb-6 transition-custom bg-orange-50 relative";
+                healthRing.className = "absolute inset-0 rounded-full border-4 border-orange-100 scale-125 transition-custom opacity-50";
+
+                titleEl.innerText = "เฝ้าระวัง (Moderate)";
+                titleEl.className = "text-2xl font-extrabold text-orange-600 mb-2 transition-custom";
+                descEl.innerText = "คุณภาพอากาศเริ่มมีผลต่อกลุ่มเสี่ยง ควรจำกัดกิจกรรมกลางแจ้ง";
+
+                gaugeFill.style.stroke = "#f59e0b";
+                gaugeContainer.style.filter = "drop-shadow(0px 0px 15px rgba(245, 158, 11, 0.3))";
+                valEl.className = "text-[3.5rem] font-extrabold text-orange-600 number-font tracking-tighter leading-none transition-custom";
+
+                badgeEl.innerHTML = "<i class='fas fa-exclamation-triangle mr-1'></i> เฝ้าระวัง";
+                badgeEl.className = "px-5 py-2.5 rounded-2xl text-sm font-bold bg-orange-50 text-orange-600 transition-custom w-full text-center border border-orange-100";
+            } else {
+                iconEl.className = "fas fa-skull-crossbones text-[3.5rem] text-rose-500 transition-custom";
+                iconContainer.className = "w-24 h-24 rounded-full flex items-center justify-center mb-6 transition-custom bg-rose-50 relative";
+                healthRing.className = "absolute inset-0 rounded-full border-4 border-rose-100 scale-125 transition-custom opacity-50";
+
+                titleEl.innerText = "อันตราย (Hazardous)";
+                titleEl.className = "text-2xl font-extrabold text-rose-600 mb-2 transition-custom";
+                descEl.innerText = "คุณภาพอากาศเป็นอันตรายต่อสุขภาพ งดกิจกรรมกลางแจ้งให้มากที่สุด";
+
+                gaugeFill.style.stroke = "#ef4444";
+                gaugeContainer.style.filter = "drop-shadow(0px 0px 15px rgba(239, 68, 68, 0.3))";
+                valEl.className = "text-[3.5rem] font-extrabold text-rose-600 number-font tracking-tighter leading-none transition-custom";
+
+                badgeEl.innerHTML = "<i class='fas fa-skull-crossbones mr-1'></i> อันตราย";
+                badgeEl.className = "px-5 py-2.5 rounded-2xl text-sm font-bold bg-rose-50 text-rose-600 transition-custom w-full text-center border border-rose-100";
             }
         }
 
@@ -420,10 +453,10 @@
             // โหลดข้อมูลครั้งแรกทันที
             updateUI(getSimulatedData());
 
-            // ตั้งเวลาอัปเดตข้อมูลอัตโนมัติทุกๆ 5 วินาที (5000ms)
+            // ตั้งเวลาอัปเดตข้อมูลอัตโนมัติทุกๆ 3 วินาที (3000ms)
             setInterval(() => {
                 updateUI(getSimulatedData());
-            }, 5000); 
+            }, 3000); 
         }
 
         // เรียกใช้งาน
